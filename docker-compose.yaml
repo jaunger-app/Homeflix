@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.9"
 services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -8,9 +8,9 @@ services:
       - PGID=1000
       - TZ=Europe/Berlin
     volumes:
-      - ./sonarr/data:/config
-      - ./sonarr/tvseries:/tv #optional
-      - ./sonarr/downloadclient-downloads:/downloads #optional
+      - ./Config/sonarr/data:/config
+      - /tvseries:/tv 
+      - /downloads:/downloads 
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -25,9 +25,24 @@ services:
     ports:
       - 7878:7878
     volumes:
-      - ./radarr/data:/config
-      - ./radarr/movies:/movies
-      - ./radarr/downloadclient-downloads:/downloads
+      - ./Config/radarr/data:/config
+      - /movies:/movies
+      - /downloads:/downloads
+    restart: unless-stopped
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    volumes:
+      - ./Config/jellyfin/data:/config
+      - /tvseries:/data/tvshows
+      - /movies:/data/movies
+    ports:
+      - 8096:8096
     restart: unless-stopped
 
   sabnzbd:
@@ -38,28 +53,9 @@ services:
       - PGID=1000
       - TZ=Europe/Berlin
     volumes:
-      - ./sabnzbd/config:/config
-      - ./sabnzbd/downloadclient-downloads:/downloads #optional
-      - ./sabnzbd/incomplete/downloads:/incomplete-downloads #optional
+      - ./Config/sabnzbd/data:/config
+      - /downloads:/downloads
+      - /incomplete-downloads:/incomplete-downloads
     ports:
       - 8080:8080
     restart: unless-stopped
-  
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Berlin
-    volumes:
-      - ./jellyfin/config:/config
-      - ./sonarr/tvseries:/data/tvshows
-      - ./radarr/movies:/data/movies
-    ports:
-      - 8096:8096
-    restart: unless-stopped
-
-networks:
-  media:
-    driver: bridge
