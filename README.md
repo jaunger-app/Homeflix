@@ -1,33 +1,9 @@
 
 # Homeflix
 
-Homeflix is a Jellyfin-Server thats on Docker localy runs. 
-
-[![Testing](https://github.com/Salzstange-app/Homeflix/actions/workflows/gitlabci.yml/badge.svg)](https://github.com/Salzstange-app/Homeflix/actions/workflows/gitlabci.yml)
-
-
-
-
-## Overview
-
-    1. U need any Linux distrubation on Windows it doesent work for now.
-    2. U need something to get NZB Movie/TV-Shows files.
-    3. U need Usenet 
-
+Docker stack with jellyfin and the most recommended MediaPlayer Services.
 
 ## Run Locally
-
-Create a Folder
-
-```bash
-  mkdir my-Homeflix
-```
-
-Go to the project directory
-
-```bash
-  cd my-Homeflix
-```
 
 Clone the project
 
@@ -35,17 +11,12 @@ Clone the project
   git clone https://github.com/Salzstange-app/Homeflix.git
 ```
 
-Install dependencies
+Start the Container
 
 ```bash
-  bash .sh
+  docker compose up -d
 ```
 
 ## Authors
 
 - [@Jan](https://www.github.com/Salzstange-app)
-
-
-## Support
-
-For support, [Website](https://salzstange-app.github.io/website/) or join my [Discord channel](https://discord.gg/qVzbUXGNpW).
