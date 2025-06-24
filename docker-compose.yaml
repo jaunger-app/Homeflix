@@ -1,4 +1,4 @@
-version: "3.1"
+version: '3.9'
 services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -6,13 +6,13 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/Berlin
+      - TZ=${TIME_ZONE}
     volumes:
-      - ./sonarr/data:/config
-      - ./sonarr/tvseries:/tv #optional
-      - ./sonarr/downloadclient-downloads:/downloads #optional
+      - ${SONARR_VOLUME}:/config
+      - ${TV_VOLUME}:/tv
+      - ${DONWLOADS_VOLUME}:/downloads
     ports:
-      - 8989:8989
+      - "8989:8989"
     restart: unless-stopped
 
   radarr:
@@ -21,13 +21,30 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/Berlin
+      - TZ=${TIME_ZONE}
     ports:
-      - 7878:7878
+      - "7878:7878"
     volumes:
-      - ./radarr/data:/config
-      - ./radarr/movies:/movies
-      - ./radarr/downloadclient-downloads:/downloads
+      - ${RADARR_VOLUME}:/config
+      - ${MOVIES_VOLUME}:/movies
+      - ${DONWLOADS_VOLUME}:/downloads
+    restart: unless-stopped
+
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ${JELLYFIN_VOLUME}:/config
+      - ${SSL_CERTS_VOLUME}:/ssl:ro
+      - ${TV_VOLUME}:/data/tvshows
+      - ${MOVIES_VOLUME}:/data/movies
+    ports:
+      - "8096:8096"
+      - "8920:8920"
     restart: unless-stopped
 
   sabnzbd:
@@ -36,30 +53,47 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/Berlin
+      - TZ=${TIME_ZONE}
     volumes:
-      - ./sabnzbd/config:/config
-      - ./sabnzbd/downloadclient-downloads:/downloads #optional
-      - ./sabnzbd/incomplete/downloads:/incomplete-downloads #optional
+      - ${SABNZBD_VOLUME}:/config
+      - ${DONWLOADS_VOLUME}:/downloads
+      - ${INCOMPLETE_DOWNLOADS_VOLUME}:/incomplete-downloads
     ports:
-      - 8080:8080
+      - "8080:8080"
     restart: unless-stopped
-  
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TIME_ZONE}
+      - PORT=5055
+    ports:
+      - 5055:5055
+    volumes:
+      - ${JELLYSEERR_VOLUME}:/app/config
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/Berlin
+      - TZ=${TIME_ZONE}
     volumes:
-      - ./jellyfin/config:/config
-      - ./sonarr/tvseries:/data/tvshows
-      - ./radarr/movies:/data/movies
+      - ${PROWLARR_VOLUME}:/config
     ports:
-      - 8096:8096
+      - "9696:9696"
     restart: unless-stopped
 
-networks:
-  media:
-    driver: bridge
+  rathole:
+    image: jaunger/rathole:latest
+    container_name: rathole
+    environment:
+      - mode=client
+    ports:
+      - "2333:2333"
+    volumes:
+      - ${RATHOLE_VOLUME}:/rathole/config.toml
+    restart: unless-stopped
